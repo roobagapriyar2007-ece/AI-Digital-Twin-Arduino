@@ -1,0 +1,92 @@
+#include "DHT.h"
+
+// DHT11
+#define DHTPIN 4
+#define DHTTYPE DHT11
+DHT dht(DHTPIN, DHTTYPE);
+
+// Pins
+#define VIB_PIN 5
+#define LED_PIN 2
+#define BUZZER_PIN 18
+
+void setup() {
+
+  Serial.begin(115200);
+
+  dht.begin();
+
+  pinMode(VIB_PIN, INPUT);
+  pinMode(LED_PIN, OUTPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
+
+  digitalWrite(LED_PIN, LOW);
+  digitalWrite(BUZZER_PIN, LOW);
+
+  Serial.println("System Started");
+}
+
+void loop() {
+
+  // Read Temperature
+  float temp = dht.readTemperature();
+
+  // Read Vibration
+  int vibration = digitalRead(VIB_PIN);
+
+  // Print values
+  Serial.print("Temperature: ");
+  Serial.print(temp);
+  Serial.println(" °C");
+
+  Serial.print("Vibration: ");
+
+  if (vibration == HIGH)
+    Serial.println("Detected");
+  else
+    Serial.println("No Vibration");
+
+  // ALERT CONDITION 1
+  // Temperature > 35°C
+
+  if (temp > 35) {
+
+    Serial.println("⚠ OVERHEATING ALERT!");
+
+    digitalWrite(LED_PIN, HIGH);
+    digitalWrite(BUZZER_PIN, HIGH);
+
+    delay(2000);
+
+    digitalWrite(BUZZER_PIN, LOW);
+  }
+
+  // ALERT CONDITION 2
+  // Vibration detected
+
+  else if (vibration == HIGH) {
+
+    Serial.println("⚠ VIBRATION ALERT!");
+
+    digitalWrite(LED_PIN, HIGH);
+    digitalWrite(BUZZER_PIN, HIGH);
+
+    delay(1000);
+
+    digitalWrite(BUZZER_PIN, LOW);
+  }
+
+  // Normal condition
+
+  else {
+
+    digitalWrite(LED_PIN, LOW);
+    digitalWrite(BUZZER_PIN, LOW);
+
+    Serial.println("System Healthy");
+  }
+
+  Serial.println("----------------");
+
+  delay(2000);
+}
